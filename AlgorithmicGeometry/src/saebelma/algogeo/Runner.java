@@ -10,11 +10,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+// Template for running an algorithm a single time and displaying the result
+
 abstract public class Runner extends Application {
 
 	public static final int panelWidth = 1000;
 	public static final int panelHeight = 1000;
-	public static final int numberOfLineSegments = 100;
 	
 	public static final Color inputColor = Color.BLACK;
 	public static final Color outputColor = Color.RED;
@@ -25,38 +26,35 @@ abstract public class Runner extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 		
-		stage.setTitle(getTitle());
+		setInput();
+		
+		long startTime = System.currentTimeMillis();
+		runAlgorithm();
+		long elapsedTime = System.currentTimeMillis() - startTime;
 		
 		Group root = new Group();
 		Canvas canvas = new Canvas(panelWidth, panelHeight);
 		gc = canvas.getGraphicsContext2D();
 		
-		getInput();
-		paintInput();
-		
-		long startTime = System.currentTimeMillis();
-		
-		runAlgorithm();
-		
-		long elapsedTime = System.currentTimeMillis() - startTime;
-		System.out.println("Elapsed time = " + elapsedTime + " ms");
-		
-		paintOutput();
+		stage.setTitle(getTitle() + " in " + elapsedTime + " ms");
+		showOutput();
 
 		root.getChildren().add(canvas);
 		stage.setScene(new Scene(root));
 		stage.show();
 	}
 
+	// ABSTRACT METHODS TO BE IMPLEMENTED BY CONCRETE SUBCLASS
+	
 	protected abstract String getTitle();
 	
-	protected abstract void getInput();
-	
-	protected abstract void paintInput();
+	protected abstract void setInput();
 	
 	protected abstract void runAlgorithm();
 	
-	protected abstract void paintOutput();
+	protected abstract void showOutput();
+	
+	// UTILITY METHODS FOR PAINTING OUTPUT
 
 	protected void paintPoints(List<Point> points, Color color) {
 		gc.setFill(color);

@@ -57,12 +57,16 @@ abstract public class Runner extends Application {
 	// UTILITY METHODS FOR PAINTING OUTPUT
 
 	protected void paintPoints(List<Point> points, Color color) {
+		paintPoints(points, color, pointDiameter);
+	}
+	
+	protected void paintPoints(List<Point> points, Color color, double diameter) {
 		gc.setFill(color);
 		for (Point point : points) {
 			if (point != null)
-				gc.fillOval(point.x - pointDiameter / 2,
-						point.y - pointDiameter / 2, pointDiameter,
-						pointDiameter);
+				gc.fillOval(point.x - diameter / 2,
+						point.y - diameter / 2, diameter,
+						diameter);
 		}
 	}
 

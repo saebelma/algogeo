@@ -23,26 +23,11 @@ public class LineSegment {
 		}
 	}
 	
-	public static List<LineSegment> random(int width, int height, int number) {	
-		List<LineSegment> lineSegments = new ArrayList<>();
-		
-		for (int i = 0; i < number; i++) {
-			double x_1 = width * Math.random();
-			double y_1 = height * Math.random();
-			double x_2 = width * Math.random();
-			double y_2 = height * Math.random();
-			
-			lineSegments.add(new LineSegment(new Point(x_1, y_1), new Point(x_2, y_2)));
-		}
-		
-		return lineSegments;
-	}
-	
 	public static Point intersection(LineSegment ls_1, LineSegment ls_2) {
 
 		// Calculate coordinate forms of lines
-		LineCoordinates lc_1 = lineCoordinates(ls_1);
-		LineCoordinates lc_2 = lineCoordinates(ls_2);
+		LineCoordinates lc_1 = coordinates(ls_1);
+		LineCoordinates lc_2 = coordinates(ls_2);
 
 		// If the lines are parallel, there's no true intersection
 		if (lc_1.a * lc_2.b - lc_2.a * lc_1.b == 0)
@@ -61,11 +46,26 @@ public class LineSegment {
 			return null;
 	}
 
-	public static LineCoordinates lineCoordinates(LineSegment ls) {
+	public static LineCoordinates coordinates(LineSegment ls) {
 		double a = ls.start.y - ls.end.y;
 		double b = ls.end.x - ls.start.x;
 		double c = ls.end.x * ls.start.y - ls.start.x * ls.end.y;
 
 		return new LineCoordinates(a, b, c);
+	}
+	
+	public static List<LineSegment> random(int width, int height, int number) {	
+		List<LineSegment> lineSegments = new ArrayList<>();
+		
+		for (int i = 0; i < number; i++) {
+			double x_1 = width * Math.random();
+			double y_1 = height * Math.random();
+			double x_2 = width * Math.random();
+			double y_2 = height * Math.random();
+			
+			lineSegments.add(new LineSegment(new Point(x_1, y_1), new Point(x_2, y_2)));
+		}
+		
+		return lineSegments;
 	}
 }

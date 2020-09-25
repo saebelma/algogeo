@@ -8,7 +8,7 @@ public class RunnerILSBF extends Runner {
 	// DATA
 	private List<LineSegment> lineSegments = new ArrayList<>();
 	private List<Point> intersections = new ArrayList<>();
-	private final int numberOfLineSegments = 1000;
+	private final int numberOfLineSegments = 100;
 	
 	// LAUNCH APPLICATON
 	public static void main(String[] args) {

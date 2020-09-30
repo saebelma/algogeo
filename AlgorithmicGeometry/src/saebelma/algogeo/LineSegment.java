@@ -6,10 +6,19 @@ import java.util.List;
 public class LineSegment {
 
 	public Point start, end;
+	LineCoordinates coordinates;
+	String tag;
 	
 	public LineSegment(Point start, Point end) {
-		this.start = start;
-		this.end = end;
+		
+		// We want the start point to be left of the end point
+		this.start = start.x <= end.x ? start : end;
+		this.end = start.x > end.x ? start : end;
+		this.coordinates = coordinates(this);
+	}
+	
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 	
 	public static class LineCoordinates {
@@ -26,8 +35,8 @@ public class LineSegment {
 	public static Point intersection(LineSegment ls_1, LineSegment ls_2) {
 
 		// Calculate coordinate forms of lines
-		LineCoordinates lc_1 = coordinates(ls_1);
-		LineCoordinates lc_2 = coordinates(ls_2);
+		LineCoordinates lc_1 = ls_1.coordinates;
+		LineCoordinates lc_2 = ls_2.coordinates;
 
 		// If the lines are parallel, there's no true intersection
 		if (lc_1.a * lc_2.b - lc_2.a * lc_1.b == 0)
@@ -67,5 +76,23 @@ public class LineSegment {
 		}
 		
 		return lineSegments;
+	}
+	
+	public static double getYAtX(LineSegment ls, double x) {
+		
+		LineCoordinates lc = ls.coordinates;
+		double y = (lc.c - lc.a * x) / lc.b;
+		
+		return y;
+	}
+	
+//	@Override
+//	public String toString() {
+//		return "LineSegment[" + start + ", " + end + "]";
+//	}
+	
+	@Override
+	public String toString() {
+		return tag;
 	}
 }

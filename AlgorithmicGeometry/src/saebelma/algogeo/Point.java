@@ -28,4 +28,9 @@ public class Point {
 		
 		return points;
 	}
+	
+	@Override
+	public String toString() {
+		return "[" + Math.rint(x) + ", " + Math.rint(y) + "]";
+	}
 }

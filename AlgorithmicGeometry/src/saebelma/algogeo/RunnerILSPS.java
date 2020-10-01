@@ -7,8 +7,9 @@ public class RunnerILSPS extends Runner {
 	
 	// DATA
 	private List<LineSegment> lineSegments = new ArrayList<>();
-	private List<LineSegment> sweepLines = new ArrayList<>();
-	private final int numberOfLineSegments = 10;
+//	private List<LineSegment> sweepLines = new ArrayList<>();
+	private final int numberOfLineSegments = 100000;
+	private List<Point> intersections = new ArrayList<>();
 	
 	// LAUNCH APPLICATON
 	public static void main(String[] args) {
@@ -23,17 +24,20 @@ public class RunnerILSPS extends Runner {
 	}	
 	@Override
 	protected void setInput() {
-		lineSegments = LineSegment.random(panelWidth, panelHeight, numberOfLineSegments);	
+		lineSegments = LineSegment.randomTiny(panelWidth, panelHeight, numberOfLineSegments);	
 	}
 	
 	@Override
 	protected void runAlgorithm() {
-		sweepLines = IntersectingLineSegments.planeSweep(lineSegments);
+//		sweepLines = IntersectingLineSegments.planeSweep(lineSegments);
+		intersections = IntersectingLineSegments.planeSweep(lineSegments);
+		
 	}
 
 	@Override
 	protected void showOutput() {
 		paintLineSegments(lineSegments, inputColor);
-		paintLineSegments(sweepLines, outputColor);
+		paintPoints(intersections, outputColor);
+//		paintLineSegments(sweepLines, outputColor);
 	}
 }

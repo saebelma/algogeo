@@ -78,6 +78,40 @@ public class LineSegment {
 		return lineSegments;
 	}
 	
+	public static List<LineSegment> randomShort(int width, int height, int number) {	
+		List<LineSegment> lineSegments = new ArrayList<>();
+		
+		for (int i = 0; i < number; i++) {
+			double x = (width - 100) * Math.random() + 50;
+			double y = (height - 100) * Math.random() + 50;
+			double x_1 = x + (100 * Math.random()) - 50;
+			double y_1 = y + (100 * Math.random()) - 50;
+			double x_2 = x + (100 * Math.random()) - 50;
+			double y_2 = y + (100 * Math.random()) - 50;
+			
+			lineSegments.add(new LineSegment(new Point(x_1, y_1), new Point(x_2, y_2)));
+		}
+		
+		return lineSegments;
+	}
+	
+	public static List<LineSegment> randomTiny(int width, int height, int number) {	
+		List<LineSegment> lineSegments = new ArrayList<>();
+		
+		for (int i = 0; i < number; i++) {
+			double x = (width - 10) * Math.random() + 5;
+			double y = (height - 10) * Math.random() + 5;
+			double x_1 = x + (10 * Math.random()) - 5;
+			double y_1 = y + (10 * Math.random()) - 5;
+			double x_2 = x + (10 * Math.random()) - 5;
+			double y_2 = y + (10 * Math.random()) - 5;
+			
+			lineSegments.add(new LineSegment(new Point(x_1, y_1), new Point(x_2, y_2)));
+		}
+		
+		return lineSegments;
+	}
+	
 	public static double getYAtX(LineSegment ls, double x) {
 		
 		LineCoordinates lc = ls.coordinates;
@@ -95,4 +129,20 @@ public class LineSegment {
 	public String toString() {
 		return tag;
 	}
+	
+    // Line segments are identical if their tags are identical 
+    @Override
+    public boolean equals(Object o) { 
+  
+        // Check if it's a line segment at all
+        if (!(o instanceof LineSegment)) { 
+            return false; 
+        } 
+          
+        // Type cast to line segment so we can compare tags 
+        LineSegment ls = (LineSegment) o; 
+          
+        // Compare the tags  
+        return this.tag.compareToIgnoreCase(ls.tag) == 0; 
+    } 
 }

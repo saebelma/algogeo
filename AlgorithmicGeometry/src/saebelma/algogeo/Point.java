@@ -31,6 +31,6 @@ public class Point {
 	
 	@Override
 	public String toString() {
-		return "[" + Math.rint(x) + ", " + Math.rint(y) + "]";
+		return "[" + IntersectingLineSegments.round(x) + ", " + IntersectingLineSegments.round(y) + "]";
 	}
 }

@@ -28,17 +28,21 @@ public class IntersectingLineSegments {
 
 	// Plane sweep algorithm for intersecting line segments
 	// Cost should be O(n * log n) ...
-	public static List<LineSegment> planeSweep(List<LineSegment> lineSegments) {
+	public static List<Point> planeSweep(List<LineSegment> lineSegments) {
 
-		// Sweep status structure with custom comparator
+		// Sweep status structure with dynamic line segment comparator (intersection
+		// with sweep line)
 		SSSOrder sssOrder = new SSSOrder();
-		NavigableSet<LineSegment> sss = new TreeSet<>(sssOrder);
+		TreeSet<LineSegment> sss = new TreeSet<>(sssOrder);
 
-		// Event queue
-		Queue<Event> events = new PriorityQueue<>(new EventOrder());
+		// Event queue with event comparator
+		TreeSet<Event> events = new TreeSet<>(new EventOrder());
 
-		// List of sweep lines
-		List<LineSegment> sweepLines = new ArrayList<>();
+		// // List of sweep lines (for visualization)
+		// List<LineSegment> sweepLines = new ArrayList<>();
+
+		// List of intersections
+		List<Point> intersections = new ArrayList<>();
 
 		// Add segment end point events
 		int lineTagCounter = 0;
@@ -47,91 +51,132 @@ public class IntersectingLineSegments {
 			events.add(new Event(ls.start.x, EventType.LEFT, ls));
 			events.add(new Event(ls.end.x, EventType.RIGHT, ls));
 		}
-		System.out.println("Initial ES");
-		Event[] eventsArray = events.toArray(new Event[0]);
-		Arrays.sort(eventsArray, new EventOrder());
-		System.out.println(Arrays.toString(eventsArray));
+		// System.out.println("Initial ES" + eventsToString(events));
 
 		// Process event queue
 		Event currentEvent;
-		double currentTime, deltaTime;
-		LineSegment currentSegment, lowerSegment, higherSegment;
-		Point intersection, lowerIntersection, higherIntersection;
-		
+		double currentTime = 0, lastTime, nextTime;
+		LineSegment currentSegment1, currentSegment2, neighboringSegment1, neighboringSegment2;
+		Point intersection1, intersection2, higherIntersection;
 
 		while (!events.isEmpty()) {
-			
-			currentEvent = events.poll();
-			
+
+			currentEvent = events.pollFirst();
+
+			// System.out.println("----------------------------");
+			// System.out.println("Processing event "+ currentEvent);
+
+			lastTime = currentTime;
 			currentTime = currentEvent.time;
-			sssOrder.setTime(currentTime);
-			
-			sweepLines.add(new LineSegment(new Point(currentTime, 0), new Point(currentTime, 1000)));
-			
-			switch (currentEvent.type){
-			
+
+			// sweepLines.add(new LineSegment(new Point(currentTime, 0), new
+			// Point(currentTime, 1000)));
+
+			switch (currentEvent.type) {
+
 			case INTERSECTION:
-				lowerSegment = currentEvent.ls1;
-				higherSegment = currentEvent.ls2;
-				sss.remove(lowerSegment);
-				sss.remove(higherSegment);
-								
-				deltaTime = (events.peek().time - currentTime) / 2;
-				
-				sssOrder.setTime(currentTime + deltaTime);
-				sss.add(lowerSegment);
-				sss.add(higherSegment);
-				sssOrder.setTime(currentTime);
-				
+
+				// Get segments and report intersection
+				currentSegment1 = currentEvent.ls1;
+				currentSegment2 = currentEvent.ls2;
+				intersections.add(LineSegment.intersection(currentSegment1, currentSegment2));
+
+				// Set time to point before intersection
+				double beforeIntersection = (lastTime + currentTime) / 2;
+				sssOrder.setTime(beforeIntersection);
+
+				// Get neighboring segments, if any
+				if (sssOrder.compare(currentSegment1, currentSegment2) < 0) {
+					neighboringSegment1 = sss.lower(currentSegment1);
+					neighboringSegment2 = sss.higher(currentSegment2);
+				} else {
+					neighboringSegment1 = sss.higher(currentSegment1);
+					neighboringSegment2 = sss.lower(currentSegment2);
+				}
+
+				// Check for intersection in switched order (= after intersection), add
+				// intersection events
+				if (neighboringSegment2 != null) {
+					intersection1 = LineSegment.intersection(currentSegment1, neighboringSegment2);
+					if (intersection1 != null && intersection1.x > currentTime)
+						events.add(new Event(intersection1.x, EventType.INTERSECTION, currentSegment1,
+								neighboringSegment2));
+				}
+				if (neighboringSegment1 != null) {
+					intersection2 = LineSegment.intersection(currentSegment2, neighboringSegment1);
+					if (intersection2 != null && intersection2.x > currentTime)
+						events.add(new Event(intersection2.x, EventType.INTERSECTION, currentSegment2,
+								neighboringSegment1));
+				}
+
+				// Remove segments
+				sss.remove(currentSegment1);
+				sss.remove(currentSegment2);
+
+				// Get time of next event and set time to point after intersection
+				nextTime = events.first().time;
+				double afterIntersection = (currentTime + nextTime) / 2;
+				sssOrder.setTime(afterIntersection);
+
+				// Re-add segments
+				sss.add(currentSegment1);
+				sss.add(currentSegment2);
+
 				break;
-				
+
 			case LEFT:
-				
-				currentSegment = currentEvent.ls1;
-				sss.add(currentSegment);
-				
-				lowerSegment = sss.lower(currentSegment);
-				if (lowerSegment != null) {
-					lowerIntersection = LineSegment.intersection(lowerSegment, currentSegment);
-					if (lowerIntersection != null)
-						events.add(new Event(lowerIntersection.x, EventType.INTERSECTION, lowerSegment,
-								currentSegment));
+
+				// Get current segment, set event time
+				currentSegment1 = currentEvent.ls1;
+				sssOrder.setTime(currentTime);
+
+				// Add segment to sss
+				sss.add(currentSegment1);
+
+				// Get neighboring segments, add intersection events
+				neighboringSegment1 = sss.lower(currentSegment1);
+				if (neighboringSegment1 != null) {
+					intersection1 = LineSegment.intersection(neighboringSegment1, currentSegment1);
+					if (intersection1 != null && intersection1.x > currentTime)
+						events.add(new Event(intersection1.x, EventType.INTERSECTION, neighboringSegment1,
+								currentSegment1));
 				}
-				
-				higherSegment = sss.higher(currentSegment);
-				if (higherSegment != null) {
-					higherIntersection = LineSegment.intersection(higherSegment, currentSegment);
-					if (higherIntersection != null)
-						events.add(new Event(higherIntersection.x, EventType.INTERSECTION,
-								currentSegment, higherSegment));
+				neighboringSegment2 = sss.higher(currentSegment1);
+				if (neighboringSegment2 != null) {
+					higherIntersection = LineSegment.intersection(neighboringSegment2, currentSegment1);
+					if (higherIntersection != null && higherIntersection.x > currentTime)
+						events.add(new Event(higherIntersection.x, EventType.INTERSECTION, currentSegment1,
+								neighboringSegment2));
 				}
-				
+
 				break;
-				
+
 			case RIGHT:
-				currentSegment = currentEvent.ls1;
-				
-				lowerSegment = sss.lower(currentSegment);
-				higherSegment = sss.higher(currentSegment);
-				if (lowerSegment != null && higherSegment != null) {
-					intersection = LineSegment.intersection(lowerSegment, higherSegment);
-					if (intersection != null)
-						events.add(new Event(intersection.x, EventType.INTERSECTION, lowerSegment, higherSegment));
+
+				// Get current segment, set event time
+				currentSegment1 = currentEvent.ls1;
+				sssOrder.setTime(currentTime);
+
+				// Get neighboring segments, add intersection event
+				neighboringSegment1 = sss.lower(currentSegment1);
+				neighboringSegment2 = sss.higher(currentSegment1);
+				if (neighboringSegment1 != null && neighboringSegment2 != null) {
+					intersection1 = LineSegment.intersection(neighboringSegment1, neighboringSegment2);
+					if (intersection1 != null && intersection1.x > currentTime)
+						events.add(new Event(intersection1.x, EventType.INTERSECTION, neighboringSegment1,
+								neighboringSegment2));
 				}
-				boolean removalSuccessful = sss.remove(currentSegment);
-				System.out.println("Removed " + currentSegment.tag + " successfully? " + removalSuccessful);
-				
+
+				// Remove segment from sss
+				sss.remove(currentSegment1);
+
 				break;
 			}
-			System.out.println("SSS at time " + Math.rint(currentTime));
-			System.out.println(sss);
-			System.out.println("ES at time " + Math.rint(currentTime));
-			eventsArray = events.toArray(new Event[0]);
-			Arrays.sort(eventsArray, new EventOrder());
-			System.out.println(Arrays.toString(eventsArray));
+			// System.out.println("SSS after processing " + sss);
+			// System.out.println("ES after processing " + eventsToString(events));
 		}
-		
-		return sweepLines;
+
+		return intersections;
 	}
 
 	private static class SSSOrder implements Comparator<LineSegment> {
@@ -139,9 +184,13 @@ public class IntersectingLineSegments {
 
 		@Override
 		public int compare(LineSegment ls1, LineSegment ls2) {
-			double y1 = LineSegment.getYAtX(ls1, time);
-			double y2 = LineSegment.getYAtX(ls2, time);
-			return Double.compare(y1, y2);
+			if (ls1.equals(ls2)) {
+				return 0;
+			} else {
+				double y1 = LineSegment.getYAtX(ls1, time);
+				double y2 = LineSegment.getYAtX(ls2, time);
+				return Double.compare(y1, y2);
+			}
 		}
 
 		public void setTime(double x) {
@@ -167,8 +216,30 @@ public class IntersectingLineSegments {
 
 		@Override
 		public String toString() {
-			return ls2 == null ? "[" + Math.rint(time) + ", " + type + ", " + ls1 + "]"
-					: "[" + time + ", " + type + ", " + ls1 + ", " + ls2 + "]";
+			return ls2 == null ? "[" + round(time) + ", " + type + ", " + ls1 + "]"
+					: "[" + round(time) + ", " + type + ", " + ls1 + ", " + ls2 + "]";
+		}
+
+		// Events are identical if they have the same type and same participating
+		// segment(s)
+		@Override
+		public boolean equals(Object o) {
+
+			// Check if it's an event at all
+			if (!(o instanceof Event)) {
+				return false;
+			}
+
+			// Type cast to event so we can compare structure
+			Event e = (Event) o;
+
+			// Compare the tags
+			if (this.type == e.type
+					&& ((this.ls1 == e.ls1 && this.ls2 == e.ls2) || (this.ls1 == e.ls2 && this.ls2 == e.ls1))) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -180,8 +251,22 @@ public class IntersectingLineSegments {
 
 		@Override
 		public int compare(Event e1, Event e2) {
-			return Double.compare(e1.time, e2.time);
+			if (e1.equals(e2)) {
+				return 0;
+			} else {
+				return Double.compare(e1.time, e2.time);
+			}
 		}
 
+	}
+
+	public static double round(double number) {
+		return (double) ((int) ((number * 100) + .5)) / 100;
+	}
+
+	public static String eventsToString(TreeSet<Event> events) {
+		Event[] eventsArray = events.toArray(new Event[0]);
+		Arrays.sort(eventsArray, new EventOrder());
+		return Arrays.toString(eventsArray);
 	}
 }

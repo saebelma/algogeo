@@ -8,7 +8,7 @@ public class RunnerILSBF extends Runner {
 	// DATA
 	private List<LineSegment> lineSegments = new ArrayList<>();
 	private List<Point> intersections = new ArrayList<>();
-	private final int numberOfLineSegments = 100;
+	private final int numberOfLineSegments = 100000;
 	
 	// LAUNCH APPLICATON
 	public static void main(String[] args) {
@@ -23,7 +23,7 @@ public class RunnerILSBF extends Runner {
 	}	
 	@Override
 	protected void setInput() {
-		lineSegments = LineSegment.random(panelWidth, panelHeight, numberOfLineSegments);	
+		lineSegments = LineSegment.randomTiny(panelWidth, panelHeight, numberOfLineSegments);	
 	}
 	
 	@Override

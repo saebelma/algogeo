@@ -29,6 +29,33 @@ public class Point {
 		return points;
 	}
 	
+	public static List<Point> randomCentered(int width, int height, int number) {	
+		List<Point> points = new ArrayList<>();
+		
+		for (int i = 0; i < number; i++) {
+			double x = 100 + (width - 200) * Math.random();
+			double y = 100 + (height - 200) * Math.random();
+			
+			points.add(new Point(x, y));
+		}
+		
+		return points;
+	}
+	
+	public static List<Point> randomCross(int width, int height, int number) {
+		List<Point> points = new ArrayList<>();
+
+		for (int i = 0; i < number; i++) {
+			double x = 100 + (width - 200) * Math.random();
+			double y = 100 + (height - 200) * Math.random();
+
+			if ((x > 400 && x < 600) || (y > 400 && y < 600))
+				points.add(new Point(x, y));
+		}
+
+		return points;
+	}
+	
 	@Override
 	public String toString() {
 		return "[" + IntersectingLineSegments.round(x) + ", " + IntersectingLineSegments.round(y) + "]";

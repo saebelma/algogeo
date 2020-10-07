@@ -8,7 +8,7 @@ public class RunnerILSPS extends Runner {
 	// DATA
 	private List<LineSegment> lineSegments = new ArrayList<>();
 //	private List<LineSegment> sweepLines = new ArrayList<>();
-	private final int numberOfLineSegments = 100000;
+	private final int numberOfLineSegments = 1000;
 	private List<Point> intersections = new ArrayList<>();
 	
 	// LAUNCH APPLICATON
@@ -24,7 +24,7 @@ public class RunnerILSPS extends Runner {
 	}	
 	@Override
 	protected void setInput() {
-		lineSegments = LineSegment.randomTiny(panelWidth, panelHeight, numberOfLineSegments);	
+		lineSegments = LineSegment.randomShort(panelWidth, panelHeight, numberOfLineSegments);	
 	}
 	
 	@Override

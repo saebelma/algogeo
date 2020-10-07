@@ -12,8 +12,14 @@ public class LineSegment {
 	public LineSegment(Point start, Point end) {
 		
 		// We want the start point to be left of the end point
-		this.start = start.x <= end.x ? start : end;
-		this.end = start.x > end.x ? start : end;
+		// Don't remember why this is necessary, but apparently
+		// the intersecting segments algorithm doesn't run right
+		// without it
+//		this.start = start.x <= end.x ? start : end;
+//		this.end = start.x > end.x ? start : end;
+//		this.coordinates = coordinates(this);
+		this.start = start;
+		this.end = end;
 		this.coordinates = coordinates(this);
 	}
 	
@@ -112,6 +118,15 @@ public class LineSegment {
 		return lineSegments;
 	}
 	
+	public static LineSegment dividingLine(int width, int height) {
+		double x_1 = width * Math.random();
+		double y_1 = 0;
+		double x_2 = width * Math.random();
+		double y_2 = height;
+		
+		return new LineSegment(new Point(x_1, y_1), new Point(x_2, y_2));
+	}
+	
 	public static double getYAtX(LineSegment ls, double x) {
 		
 		LineCoordinates lc = ls.coordinates;
@@ -144,5 +159,13 @@ public class LineSegment {
           
         // Compare the tags  
         return this.tag.compareToIgnoreCase(ls.tag) == 0; 
-    } 
+    }
+    
+    public static List<LineSegment> segmentsFromPoints(List<Point> points) {
+    	List<LineSegment> segments = new ArrayList<>();
+    	for (int i = 0; i < points.size() - 1; i++) {
+    		segments.add(new LineSegment(points.get(i), points.get(i + 1)));
+    	}
+    	return segments;
+    }
 }

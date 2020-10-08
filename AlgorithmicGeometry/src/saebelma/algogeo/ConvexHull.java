@@ -12,7 +12,7 @@ public class ConvexHull {
 	private List<Point> lowerLeftContour = new ArrayList<>();
 	private List<Point> upperRightContour = new ArrayList<>();
 	private List<Point> lowerRightContour = new ArrayList<>();
-	private List<Point> upperLeftHull, lowerRightHull;
+	private List<Point> upperLeftHull, lowerRightHull, upperRightHull, lowerLeftHull;
 	
 	public ConvexHull(List<Point> points) {
 		this.points = points;
@@ -24,15 +24,17 @@ public class ConvexHull {
 		calculateRightContour();
 		calculateUpperLeftHull();
 		calculateLowerRightHull();
+		calculateUpperRightHull();
+		calculateLowerLeftHull();
 	}
 	
 	private void calculateLeftContour() {
 		
-		Point lastPoint = points.get(0);
-		double minY = lastPoint.y;
-		double maxY = lastPoint.y;
-		upperLeftContour.add(lastPoint);
-		lowerLeftContour.add(lastPoint);
+		Point firstPoint = points.get(0);
+		double minY = firstPoint.y;
+		double maxY = firstPoint.y;
+		upperLeftContour.add(firstPoint);
+		lowerLeftContour.add(firstPoint);
 		
 		for (int i = 1; i < points.size(); i++) {
 			Point point = points.get(i);
@@ -71,7 +73,7 @@ public class ConvexHull {
 					if (currentIndex == 0) {
 						break;
 					} else {
-						precedingPoint = points.get(currentIndex - 1); 
+						precedingPoint = upperLeftHull.get(currentIndex - 1); 
 						testLine = new LineSegment(precedingPoint, currentPoint);
 						if (DividePoints.rightOfLine(pointAfterNext, testLine)) {
 							System.out.println("Done");
@@ -114,7 +116,7 @@ public class ConvexHull {
 					if (currentIndex == 0) {
 						break;
 					} else {
-						precedingPoint = points.get(currentIndex - 1); 
+						precedingPoint = lowerRightHull.get(currentIndex - 1); 
 						testLine = new LineSegment(precedingPoint, currentPoint);
 						if (DividePoints.rightOfLine(pointAfterNext, testLine)) {
 							break;
@@ -132,6 +134,85 @@ public class ConvexHull {
 		}
 	}
 
+	private void calculateLowerLeftHull() {
+		lowerLeftHull = new ArrayList<>(lowerLeftContour);
+		Collections.reverse(lowerLeftHull);
+		int currentIndex = 0;
+		while (true) {
+			// If we've reached the penultimate point, we're done
+			if (currentIndex >= lowerLeftHull.size() - 2) break;
+			
+			// Check next point for convexity
+			Point currentPoint = lowerLeftHull.get(currentIndex);
+			Point nextPoint = lowerLeftHull.get(currentIndex + 1);
+			Point pointAfterNext = lowerLeftHull.get(currentIndex + 2);
+			int indexAfterNext = currentIndex + 2;
+			LineSegment testLine = new LineSegment(currentPoint, pointAfterNext);
+			if (DividePoints.rightOfLine(nextPoint, testLine)) {
+				
+				// If it's concave, we have to retrace our steps
+				Point precedingPoint;
+				while(true) {
+					if (currentIndex == 0) {
+						break;
+					} else {
+						precedingPoint = lowerLeftHull.get(currentIndex - 1); 
+						testLine = new LineSegment(precedingPoint, currentPoint);
+						if (DividePoints.rightOfLine(pointAfterNext, testLine)) {
+							break;
+						} else {
+							currentIndex--;
+							currentPoint = lowerLeftHull.get(currentIndex);
+						}
+					}
+				}
+				// Delete all points between current index and original point after next
+				lowerLeftHull.subList(currentIndex + 1, indexAfterNext).clear();
+			} else {
+				currentIndex++;
+			}
+		}
+	}
+	private void calculateUpperRightHull() {
+		upperRightHull = new ArrayList<>(upperRightContour);
+		Collections.reverse(upperRightHull);
+		int currentIndex = 0;
+		while (true) {
+			// If we've reached the penultimate point, we're done
+			if (currentIndex >= upperRightHull.size() - 2) break;
+			
+			// Check next point for convexity
+			Point currentPoint = upperRightHull.get(currentIndex);
+			Point nextPoint = upperRightHull.get(currentIndex + 1);
+			Point pointAfterNext = upperRightHull.get(currentIndex + 2);
+			int indexAfterNext = currentIndex + 2;
+			LineSegment testLine = new LineSegment(currentPoint, pointAfterNext);
+			if (DividePoints.rightOfLine(nextPoint, testLine)) {
+				
+				// If it's concave, we have to retrace our steps
+				Point precedingPoint;
+				while(true) {
+					if (currentIndex == 0) {
+						break;
+					} else {
+						precedingPoint = upperRightHull.get(currentIndex - 1); 
+						testLine = new LineSegment(precedingPoint, currentPoint);
+						if (DividePoints.rightOfLine(pointAfterNext, testLine)) {
+							break;
+						} else {
+							currentIndex--;
+							currentPoint = upperRightHull.get(currentIndex);
+						}
+					}
+				}
+				// Delete all points between current index and original point after next
+				upperRightHull.subList(currentIndex + 1, indexAfterNext).clear();
+			} else {
+				currentIndex++;
+			}
+		}
+	}
+	
 	private void calculateRightContour() {
 		
 		Point lastPoint = points.get(points.size() - 1);
@@ -188,6 +269,13 @@ public class ConvexHull {
 	public List<Point> getLowerRightHull() {
 		return lowerRightHull;
 	}
-	
+
+	public List<Point> getUpperRightHull() {
+		return upperRightHull;
+	}
+
+	public List<Point> getLowerLeftHull() {
+		return lowerLeftHull;
+	}
 	
 }

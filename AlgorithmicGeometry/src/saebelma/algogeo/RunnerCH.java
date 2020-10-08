@@ -11,7 +11,7 @@ public class RunnerCH extends Runner {
 	private List<Point> lowerLeftContour = new ArrayList<>();
 	private List<Point> upperRightContour = new ArrayList<>();
 	private List<Point> lowerRightContour = new ArrayList<>();
-	private List<Point> upperLeftHull, lowerRightHull;
+	private List<Point> upperLeftHull, lowerRightHull, upperRightHull, lowerLeftHull;
 	private final int width = 1000;
 	private final int height = 1000;
 	private final int numberOfPoints = 1000;
@@ -30,7 +30,7 @@ public class RunnerCH extends Runner {
 	}	
 	@Override
 	protected void setInput() {
-		points = Point.randomCross(width, height, numberOfPoints);
+		points = Point.randomDiamond(width, height, numberOfPoints);
 	}
 	
 	@Override
@@ -43,6 +43,8 @@ public class RunnerCH extends Runner {
 		lowerRightContour = algorithm.getLowerRightContour();
 		upperLeftHull = algorithm.getUpperLeftHull();
 		lowerRightHull = algorithm.getLowerRightHull();
+		upperRightHull = algorithm.getUpperRightHull();
+		lowerLeftHull = algorithm.getLowerLeftHull();
 
 	}
 
@@ -55,5 +57,7 @@ public class RunnerCH extends Runner {
 		paintLineSegments(LineSegment.segmentsFromPoints(lowerRightContour), intermediateColor);
 		paintLineSegments(LineSegment.segmentsFromPoints(upperLeftHull), outputColor);
 		paintLineSegments(LineSegment.segmentsFromPoints(lowerRightHull), outputColor);
+		paintLineSegments(LineSegment.segmentsFromPoints(upperRightHull), outputColor);
+		paintLineSegments(LineSegment.segmentsFromPoints(lowerLeftHull), outputColor);
 	}
 }

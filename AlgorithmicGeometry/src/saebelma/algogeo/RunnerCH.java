@@ -7,14 +7,11 @@ public class RunnerCH extends Runner {
 	
 	// DATA
 	private List<Point> points;
-	private List<Point> upperLeftContour = new ArrayList<>();
-	private List<Point> lowerLeftContour = new ArrayList<>();
-	private List<Point> upperRightContour = new ArrayList<>();
-	private List<Point> lowerRightContour = new ArrayList<>();
-	private List<Point> upperLeftHull, lowerRightHull, upperRightHull, lowerLeftHull;
+	private List<List<Point>> contour = new ArrayList<>();
+	private List<List<Point>> hull = new ArrayList<>();
 	private final int width = 1000;
 	private final int height = 1000;
-	private final int numberOfPoints = 1000;
+	private final int numberOfPoints = 100;
 	private ConvexHull algorithm;
 	
 	// LAUNCH APPLICATON
@@ -30,34 +27,25 @@ public class RunnerCH extends Runner {
 	}	
 	@Override
 	protected void setInput() {
-		points = Point.randomDiamond(width, height, numberOfPoints);
+		points = Point.randomCircle(width, height, numberOfPoints);
 	}
 	
 	@Override
 	protected void runAlgorithm() {
 		algorithm = new ConvexHull(points);
 		algorithm.run();
-		upperLeftContour = algorithm.getUpperLeftContour();
-		lowerLeftContour = algorithm.getLowerLeftContour();
-		upperRightContour = algorithm.getUpperRightContour();
-		lowerRightContour = algorithm.getLowerRightContour();
-		upperLeftHull = algorithm.getUpperLeftHull();
-		lowerRightHull = algorithm.getLowerRightHull();
-		upperRightHull = algorithm.getUpperRightHull();
-		lowerLeftHull = algorithm.getLowerLeftHull();
-
+		contour = algorithm.getContour();
+		hull = algorithm.getHull();
 	}
 
 	@Override
 	protected void showOutput() {
 		paintPoints(points, inputColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(upperLeftContour), intermediateColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(lowerLeftContour), intermediateColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(upperRightContour), intermediateColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(lowerRightContour), intermediateColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(upperLeftHull), outputColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(lowerRightHull), outputColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(upperRightHull), outputColor);
-		paintLineSegments(LineSegment.segmentsFromPoints(lowerLeftHull), outputColor);
+		for (List<Point> quadrant : contour) {
+			paintLineSegments(LineSegment.segmentsFromPoints(quadrant), intermediateColor);
+		}
+		for (List<Point> quadrant : hull) {
+			paintLineSegments(LineSegment.segmentsFromPoints(quadrant), outputColor);
+		}
 	}
 }

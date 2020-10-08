@@ -58,12 +58,26 @@ public class Point {
 	
 	public static List<Point> randomDiamond(int width, int height, int number) {
 		List<Point> points = new ArrayList<>();
+		
+		for (int i = 0; i < number; i++) {
+			double x = 100 + (width - 200) * Math.random();
+			double y = 100 + (height - 200) * Math.random();
+			
+			if (Math.abs(x - 500) + Math.abs(y - 500) < 400)
+				points.add(new Point(x, y));
+		}
+		
+		return points;
+	}
+	
+	public static List<Point> randomCircle(int width, int height, int number) {
+		List<Point> points = new ArrayList<>();
 
 		for (int i = 0; i < number; i++) {
 			double x = 100 + (width - 200) * Math.random();
 			double y = 100 + (height - 200) * Math.random();
 
-			if (Math.abs(x - 500) + Math.abs(y - 500) < 400)
+			if (Math.sqrt(Math.pow(x - 500, 2) + Math.pow(y - 500, 2)) < 300)
 				points.add(new Point(x, y));
 		}
 
